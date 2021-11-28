@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError, CharField, IntegerField
 
-from models import Project, Issue, Comment, Contributor
+from .models import Project, Issue, Comment, Contributor
 
 
 class ContributorListSerializer(ModelSerializer):
@@ -80,25 +80,25 @@ class ProjectDetailSerializer(ModelSerializer):
         return instance.contributors.get(permission=Contributor.AUTHOR)['user_id']
 
 
-class ProjectUsersListSerializer(ModelSerializer):
-    pass
-
-
-class ProjectUsersDetailSerializer(ModelSerializer):
-    pass
-
-
-class ProjectIssuesListSerializer(ModelSerializer):
-    pass
-
-
-class ProjectIssuesDetailSerializer(ModelSerializer):
-    pass
-
-
-class ProjectIssueCommentsListSerializer(ModelSerializer):
-    pass
-
-
-class ProjectIssueCommentsDetailSerializer(ModelSerializer):
-    pass
+# class ProjectUsersListSerializer(ModelSerializer):
+#     pass
+#
+#
+# class ProjectUsersDetailSerializer(ModelSerializer):
+#     pass
+#
+#
+# class ProjectIssuesListSerializer(ModelSerializer):
+#     pass
+#
+#
+# class ProjectIssuesDetailSerializer(ModelSerializer):
+#     pass
+#
+#
+# class ProjectIssueCommentsListSerializer(ModelSerializer):
+#     pass
+#
+#
+# class ProjectIssueCommentsDetailSerializer(ModelSerializer):
+#     pass
