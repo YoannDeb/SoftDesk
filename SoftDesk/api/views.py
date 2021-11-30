@@ -27,14 +27,14 @@ class IssueViewSet(ModelViewSet):
     serializer_class = IssueSerializer
 
     def get_queryset(self):
-        return Issue.objects.filter(project_id=self.kwargs['project_id'])
+        return Issue.objects.filter(project_id=self.kwargs['project_pk'])
 
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
-        return Comment.objects.filter(issue_id=self.kwargs['issue_id'])
+        return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
 
 
 
