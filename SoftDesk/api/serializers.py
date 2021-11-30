@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField, V
 from .models import Project, Issue, Comment, Contributor
 
 
-class ContributorListSerializer(ModelSerializer):
+class ContributorSerializer(ModelSerializer):
     user_username = CharField(read_only=True, source='user.username')
     project_title = CharField(read_only=True, source='project.title')
 
@@ -12,45 +12,44 @@ class ContributorListSerializer(ModelSerializer):
         fields = ['id', 'user_id', 'user_username', 'project_id', 'project_title', 'permission', 'role']
 
 
-class ContributorDetailSerializer(ModelSerializer):
-    user_username = CharField(read_only=True, source='user.username')
-    project_title = CharField(read_only=True, source='project.title')
-
-    class Meta:
-        model = Contributor
-        fields = ['id', 'user_id', 'user_username', 'project_id', 'project_title', 'permission', 'role']
-
-
-class CommentListSerializer(ModelSerializer):
-
-    class Meta:
-        model = Comment
-        fields = ['id', 'description', 'author_user_id', 'issue_id', 'created_time']
+# class ContributorDetailSerializer(ModelSerializer):
+#     user_username = CharField(read_only=True, source='user.username')
+#     project_title = CharField(read_only=True, source='project.title')
+#
+#     class Meta:
+#         model = Contributor
+#         fields = ['id', 'user_id', 'user_username', 'project_id', 'project_title', 'permission', 'role']
 
 
-class CommentDetailSerializer(ModelSerializer):
+class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
         fields = ['id', 'description', 'author_user_id', 'issue_id', 'created_time']
 
 
-class IssueListSerializer(ModelSerializer):
+# class CommentDetailSerializer(ModelSerializer):
+#
+#     class Meta:
+#         model = Comment
+#         fields = ['id', 'description', 'author_user_id', 'issue_id', 'created_time']
+
+
+class IssueSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
         fields = ['id', 'title', 'description', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'created_time']
 
 
-class IssueDetailSerializer(ModelSerializer):
+# class IssueDetailSerializer(ModelSerializer):
+#
+#     class Meta:
+#         model = Issue
+#         fields = ['id', 'title', 'description', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'created_time']
 
-    class Meta:
-        model = Issue
-        fields = ['id', 'title', 'description', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'created_time']
 
-
-class ProjectListSerializer(ModelSerializer):
-
+class ProjectSerializer(ModelSerializer):
     contributors = SerializerMethodField()
     author_user_id = SerializerMethodField()
 
@@ -65,6 +64,9 @@ class ProjectListSerializer(ModelSerializer):
     #     queryset = instance.contributors.all()
     #     serializer = ContributorSerializer(queryset, many=True)
     #     return serializer.data
+
+    def get_contributors(self, instance):
+        return instance.contributors.all()
 
 
 class ProjectDetailSerializer(ModelSerializer):
