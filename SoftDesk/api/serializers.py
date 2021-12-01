@@ -1,32 +1,32 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError, CharField, IntegerField
+from rest_framework import serializers
 
 from .models import Project, Issue, Comment, Contributor
 
 
-class ContributorSerializer(ModelSerializer):
-    user_username = CharField(read_only=True, source='user.username')
-    project_title = CharField(read_only=True, source='project.title')
+class ContributorSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(read_only=True, source='user.username')
+    project_title = serializers.CharField(read_only=True, source='project.title')
 
     class Meta:
         model = Contributor
         fields = ['id', 'user_id', 'user_username', 'project_id', 'project_title', 'permission', 'role']
 
 
-class CommentSerializer(ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'description', 'author_user_id', 'issue_id', 'created_time']
 
 
-class IssueSerializer(ModelSerializer):
+class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = ['id', 'title', 'description', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'created_time']
 
 
-class ProjectSerializer(ModelSerializer):
-    contributors = SerializerMethodField()
-    author_user_id = SerializerMethodField()
+class ProjectSerializer(serializers.ModelSerializer):
+    contributors = serializers.SerializerMethodField()
+    author_user_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
