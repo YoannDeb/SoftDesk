@@ -1,6 +1,13 @@
 from rest_framework import serializers
+from django.db import transaction
 
-from .models import Project, Issue, Comment, Contributor
+from .models import Project, Issue, Comment, Contributor, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    model = User
+    fields = ['email', 'first_name', 'last_name', 'email', 'password']
+    extra_kwargs = {'password': {'write_only': True}}
 
 
 class ContributorSerializer(serializers.ModelSerializer):
@@ -21,28 +28,23 @@ class CommentSerializer(serializers.ModelSerializer):
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'description', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'created_time']
+        fields = [
+            'id', 'title', 'description', 'tag', 'priority', 'project_id',
+            'status', 'author_user_id', 'assignee_user_id', 'created_time'
+        ]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributors = serializers.SerializerMethodField()
-    author_user_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         fields = ['id', 'title', 'description', 'type', 'author_user_id', 'contributors']
 
-    def get_author_user_id(self, instance):
-        return instance.contributors.get(permission=Contributor.AUTHOR).user_id.pk
-
-    def get_contributors(self, instance):
-        queryset = instance.contributors.all()
-        serializer = ContributorSerializer(queryset, many=True)
-        return serializer.data
-
-    def create(self, validated_data):  # or data ?
-        project_instance = super().create(validated_data)
-        contributor = Contributor.objects.create(permission=Contributor.AUTHOR, project_id=project_instance,
-                                                 user_id=self.context['request'].user)
-        contributor.save()
-        return project_instance
+    def create(self, validated_data):
+        with transaction.atomic():
+            project_instance = super().create(validated_data)
+            contributor = Contributor.objects.create(
+                permission=Contributor.AUTHOR, project_id=project_instance, user_id=self.context['request'].user
+            )
+            contributor.save()
+            return project_instance
