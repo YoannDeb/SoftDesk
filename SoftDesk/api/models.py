@@ -8,7 +8,6 @@ class User(AbstractUser):
 
 
 class Contributor(models.Model):
-
     AUTHOR = 'AU'
     CONTRIBUTOR = 'CO'
 
@@ -17,10 +16,9 @@ class Contributor(models.Model):
         (CONTRIBUTOR, 'Contributor'),
     ]
 
-    user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='contributors')
-    project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='contributors')
-
-    permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)  # Unique author? a priori yes
+    user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
+    project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='users')
+    permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)
     role = models.CharField(max_length=300)
 
 
@@ -28,12 +26,14 @@ class Project(models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=300)
     type = models.CharField(max_length=50)
-    # Use something like project.Contributors.objects.filter(project_id=pk).filter(permission=AUTHOR)
-    # or
-    # author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Projects')
+    contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
 
     def __str__(self):
         return self.title
+
+    @property
+    def author_user_id(self):
+        return User.objects.get(projects__project_id=self, projects__permission=Contributor.AUTHOR).pk
 
 
 class Issue(models.Model):
