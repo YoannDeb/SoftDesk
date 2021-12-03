@@ -23,9 +23,21 @@ class Contributor(models.Model):
 
 
 class Project(models.Model):
+    BACK_END = 'BE'
+    FRONT_END = 'FE'
+    IOS = 'IO'
+    ANDROID = 'AN'
+
+    TYPE_CHOICES = [
+        (BACK_END, 'back-end'),
+        (FRONT_END, 'front-end'),
+        (IOS, 'IOS'),
+        (ANDROID, 'Android'),
+    ]
+
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=300)
-    type = models.CharField(max_length=50)
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
 
     def __str__(self):
@@ -37,12 +49,32 @@ class Project(models.Model):
 
 
 class Issue(models.Model):
+    BUG = 'BU'
+    AMELIORATION = 'AM'
+    TACHE = 'TA'
+
+    TAG_CHOICES = [
+        (BUG, 'BUG'),
+        (AMELIORATION, 'AMÉLIORATION'),
+        (TACHE, 'TÂCHE'),
+    ]
+
+    A_FAIRE = 'AF'
+    EN_COURS = 'EC'
+    TERMINE = 'TE'
+
+    STATUS_CHOICES = [
+        (A_FAIRE, 'À faire'),
+        (EN_COURS, 'En cours'),
+        (TERMINE, 'Terminé'),
+    ]
+
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=300)
-    tag = models.CharField(max_length=50)
+    tag = models.CharField(max_length=50, choices=TAG_CHOICES)
     priority = models.CharField(max_length=50)
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues')
     assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assigned_issues')
     created_time = models.DateTimeField(auto_now_add=True)
