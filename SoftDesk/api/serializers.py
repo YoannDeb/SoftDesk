@@ -5,9 +5,10 @@ from .models import Project, Issue, Comment, Contributor, User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    model = User
-    fields = ['email', 'first_name', 'last_name', 'email', 'password']
-    extra_kwargs = {'password': {'write_only': True}}
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class ContributorSerializer(serializers.ModelSerializer):
