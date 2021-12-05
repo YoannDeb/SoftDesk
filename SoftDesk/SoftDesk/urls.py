@@ -18,13 +18,14 @@ from django.urls import path, include
 from rest_framework_nested import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from api.views import ProjectViewSet, IssueViewSet, CommentViewSet, SignUpAPIView
+from api.views import ProjectViewSet, IssueViewSet, ContributorViewSet, CommentViewSet, SignUpAPIView
 
 router = routers.SimpleRouter()
 router.register('projects', ProjectViewSet, basename='projects')
 
 project_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
 project_router.register('issues', IssueViewSet, basename='issues')
+project_router.register('users', ContributorViewSet, basename='users')
 
 issue_router = routers.NestedSimpleRouter(project_router, 'issues', lookup='issue')
 issue_router.register('comments', CommentViewSet, basename='comments')
