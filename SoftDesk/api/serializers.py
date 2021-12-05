@@ -21,12 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ContributorSerializer(serializers.ModelSerializer):
-    user_username = serializers.CharField(read_only=True, source='user.username')
     project_title = serializers.CharField(read_only=True, source='project.title')
 
     class Meta:
         model = Contributor
-        fields = ['id', 'user_id', 'user_username', 'project_id', 'project_title', 'permission', 'role']
+        fields = ['id', 'user_id', 'project_id', 'project_title', 'permission', 'role']
 
 
 class CommentSerializer(serializers.ModelSerializer):
