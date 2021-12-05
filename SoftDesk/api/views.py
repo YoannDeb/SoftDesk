@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment
-from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer
+from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer
 from .permissions import IsProjectContributor, IsProjectAuthor
 
 
@@ -49,4 +49,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
 
 
+class ContributorViewSet(viewsets.ModelViewSet):
+    serializer_class = ContributorSerializer
+    permission_classes = [IsProjectContributor]
 
+    def get_queryset(self):
+        return Contributor.objects.filter(project_id=self.kwargs['project_pk'])
