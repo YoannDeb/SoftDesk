@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment
 from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer
+from .permissions import IsProjectContributor, IsProjectAuthor
 
 
 class SignUpAPIView(views.APIView):
@@ -28,6 +29,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class IssueViewSet(viewsets.ModelViewSet):
     serializer_class = IssueSerializer
+    permission_classe = [IsProjectContributor]
 
     def get_queryset(self):
         return Issue.objects.filter(project_id=self.kwargs['project_pk'])
@@ -35,6 +37,7 @@ class IssueViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classe = [IsProjectContributor]
 
     def get_queryset(self):
         return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
