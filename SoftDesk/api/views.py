@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import viewsets, views, permissions, status
+from rest_framework import viewsets, views, permissions, status, generics
 
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -10,7 +10,7 @@ from .permissions import IsProjectContributor, IsProjectAuthor
 
 
 class SignUpAPIView(views.APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         user = request.data
@@ -18,6 +18,12 @@ class SignUpAPIView(views.APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# class SignupApiView(generics.CreateAPIView):
+#     model = User
+#     permission_classes = [permissions.AllowAny]
+#     serializer_class = UserSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
