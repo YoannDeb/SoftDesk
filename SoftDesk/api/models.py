@@ -4,7 +4,8 @@ from django.conf import settings
 
 
 class User(AbstractUser):
-    pass
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.email}"
 
 
 class Contributor(models.Model):
