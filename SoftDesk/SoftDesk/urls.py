@@ -32,8 +32,8 @@ issue_router.register('comments', CommentViewSet, basename='comments')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('signup/', SignUpAPIView.as_view()),
     path('', include(router.urls)),
     path('', include(project_router.urls)),

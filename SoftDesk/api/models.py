@@ -27,6 +27,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, verbose_name='email address')
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
+    is_active = models.BooleanField(default=True)
 
     Objects = CustomUserManager()
 
@@ -36,9 +37,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.email}"
 
-    def save(self, *args, **kwargs):
-        super(CustomUser, self).save(*args, **kwargs)
-        return self
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, api):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    # def save(self, *args, **kwargs):
+    #     super(CustomUser, self).save(*args, **kwargs)
+    #     return self
 
     @property
     def is_staff(self):
