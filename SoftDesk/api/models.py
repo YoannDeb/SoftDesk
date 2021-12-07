@@ -4,40 +4,36 @@ from django.db import models, transaction
 from django.conf import settings
 
 
-class UserManager(BaseUserManager):
-
+class CustomUserManager(BaseUserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
-            raise ValueError('Email must be set')
-        try:
-            with transaction.atomic():
-                user = self.model(email=email, **extra_fields)
-                user.set_password(password)
-                user.save(using=self._db)
-                return user
-        except:
-            raise
+            raise ValueError('User must have an email address')
+        with transaction.atomic():
+            user = self.model(email=self.normalize_email(email), **extra_fields)
+            user.set_password(password)
+            user.save(using=self._db)
+            return user
 
     def create_user(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
+        # extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
+        # extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=30, blank=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(max_length=255, unique=True, verbose_name='email address')
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    # is_active = models.BooleanField(default=True)
+    # is_staff = models.BooleanField(default=False)
     # date_joined = models.DateTimeField(default=timezone.now)
 
-    Objects = UserManager()
+    Objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -46,8 +42,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.first_name} {self.last_name} - {self.email}"
 
     def save(self, *args, **kwargs):
-        super(User, self).save(*args, **kwargs)
+        super(CustomUser, self).save(*args, **kwargs)
         return self
+
+    @property
+    def is_staff(self):
+        """Is the user a member of staff?"""
+        # Simplest possible answer: All superusers are staff
+        return self.is_superuser
 
 # class User(AbstractUser):
 #     def __str__(self):
@@ -92,7 +94,7 @@ class Project(models.Model):
 
     @property
     def author_user_id(self):
-        return User.objects.get(projects__project_id=self, projects__permission=Contributor.AUTHOR).pk
+        return CustomUser.objects.get(projects__project_id=self, projects__permission=Contributor.AUTHOR).pk
 
 
 class Issue(models.Model):

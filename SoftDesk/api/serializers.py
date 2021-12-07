@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from .models import Project, Issue, Comment, Contributor, User
+from .models import Project, Issue, Comment, Contributor, CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['email', 'first_name', 'last_name', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
