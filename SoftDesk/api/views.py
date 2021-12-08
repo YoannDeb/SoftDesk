@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment
 from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer
-from .permissions import IsProjectContributor, IsProjectAuthor
+from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor
 
 
 class SignUpAPIView(views.APIView):
@@ -36,7 +36,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class IssueViewSet(viewsets.ModelViewSet):
     serializer_class = IssueSerializer
-    permission_classe = [IsProjectContributor]
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve' or self.action == 'create':
+            permission_classes = [IsProjectContributor, permissions.IsAuthenticated]
+        elif self.action == 'delete' or self.action == 'update':
+            permission_classes = [IsProjectContributor, IsIssueAuthor, permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Issue.objects.filter(project_id=self.kwargs['project_pk'])
@@ -56,3 +61,19 @@ class ContributorViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Contributor.objects.filter(project_id=self.kwargs['project_pk'])
+
+    def create(self, validated_data):
+        pass
+
+
+class RGPDAPIView(views.APIView):
+    permission_classes = [IsCurrentUser]
+
+    def retrieve(self, request):
+        pass
+
+    def update(self, request):
+        pass
+
+    def destroy(self, request):
+        request.user.delete()
