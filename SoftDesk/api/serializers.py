@@ -20,15 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
         """
         return make_password(value)
 
-    # def create(self, validated_data):
-    #     user = CustomUser.objects.create_user(
-    #         first_name=validated_data['first_name'],
-    #         last_name=validated_data['last_name'],
-    #         email=validated_data['email'],
-    #         password=validated_data['password'],
-    #     )
-    #     return user
-
 
 class ContributorSerializer(serializers.ModelSerializer):
     project_title = serializers.CharField(read_only=True, source='project.title')
@@ -36,6 +27,12 @@ class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
         fields = ['id', 'user_id', 'project_id', 'project_title', 'permission', 'role']
+
+
+class CreateContributorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contributor
+        fields = ['id', 'user_id', 'role']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -51,6 +48,9 @@ class IssueSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'tag', 'priority', 'project_id',
             'status', 'author_user_id', 'assignee_user_id', 'created_time'
         ]
+
+        def create(self, validated_data):
+            pass
 
 
 class ProjectSerializer(serializers.ModelSerializer):
