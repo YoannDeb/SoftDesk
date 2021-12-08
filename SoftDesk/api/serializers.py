@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
+from django.contrib.auth.hashers import make_password
 
 from .models import Project, Issue, Comment, Contributor, CustomUser
 
@@ -9,6 +10,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['email', 'first_name', 'last_name', 'email', 'password']
         # extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_password(self, value: str) -> str:
+        """
+        Hash value passed by user.
+
+        :param value: password of a user
+        :return: a hashed version of the password
+        """
+        return make_password(value)
 
     # def create(self, validated_data):
     #     user = CustomUser.objects.create_user(
