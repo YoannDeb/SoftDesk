@@ -114,6 +114,16 @@ class Issue(models.Model):
         (TACHE, 'TÂCHE'),
     ]
 
+    FAIBLE = 'FA'
+    MOYENNE = 'MO'
+    ELEVEE = 'EL'
+
+    PRIORITY_CHOICES = [
+        (FAIBLE, 'FAIBLE'),
+        (MOYENNE, 'MOYENNE'),
+        (ELEVEE, 'ÉLEVÉE')
+    ]
+
     A_FAIRE = 'AF'
     EN_COURS = 'EC'
     TERMINE = 'TE'
@@ -127,7 +137,7 @@ class Issue(models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=300)
     tag = models.CharField(max_length=50, choices=TAG_CHOICES)
-    priority = models.CharField(max_length=50)
+    priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES)
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues')
