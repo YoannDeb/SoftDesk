@@ -1,17 +1,17 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, views, permissions, status, generics
+from rest_framework import viewsets, views, permissions, status, decorators
 
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment, CustomUser
 from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer
-from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor
+from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor, IsCommentAuthor
 
 
 class SignUpAPIView(views.APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny()]
 
     def post(self, request):
         user = request.data
@@ -26,10 +26,17 @@ class SignUpAPIView(views.APIView):
 #     permission_classes = [permissions.AllowAny]
 #     serializer_class = UserSerializer
 
-
+@decorators.permission_classes([permissions.IsAuthenticated()])
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'retrieve':
+            permission_classes = [IsProjectContributor()]
+        elif self.action == 'delete' or self.action == 'update':
+            permission_classes = [IsProjectAuthor()]
+        return permission_classes
 
     def get_queryset(self):
         return Project.objects.filter(contributors=self.request.user)
@@ -39,11 +46,11 @@ class IssueViewSet(viewsets.ModelViewSet):
     serializer_class = IssueSerializer
 
     def get_permissions(self):
-        permission_classes = [permissions.IsAuthenticated]
+        permission_classes = [permissions.IsAuthenticated()]
         if self.action == 'list' or self.action == 'retrieve' or self.action == 'create':
-            permission_classes = [permissions.IsAuthenticated, IsProjectContributor]
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
         elif self.action == 'delete' or self.action == 'update':
-            permission_classes = [permissions.IsAuthenticated, IsProjectContributor, IsIssueAuthor]
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor(), IsIssueAuthor()]
         return permission_classes
 
     def get_queryset(self):
@@ -52,7 +59,15 @@ class IssueViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classe = [IsProjectContributor]
+    permission_classes = [permissions.IsAuthenticated()]
+
+    def get_permissions(self):
+        permission_classes = [permissions.IsAuthenticated()]
+        if self.action == 'list' or self.action == 'retrieve' or self.action == 'create':
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
+        elif self.action == 'delete' or self.action == 'update':
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor(), IsCommentAuthor()]
+        return permission_classes
 
     def get_queryset(self):
         return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
@@ -60,10 +75,17 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class ContributorViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorSerializer
-    permission_classes = [IsProjectContributor]
+
+    def get_permissions(self):
+        permission_classes = [permissions.IsAuthenticated()]
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
+        elif self.action == 'create' or self.action == 'delete' or self.action == 'update':
+            permission_classes = [permissions.IsAuthenticated(), IsProjectAuthor()]
+        return permission_classes
 
     def get_queryset(self):
-        return Contributor.objects.filter(project_id=self.kwargs['project_pk'])
+        return Contributor.objects.filter(project_id=int(self.kwargs['project_pk']))
 
     def create(self, request, *args, **kwargs):
         try:
@@ -80,16 +102,24 @@ class ContributorViewSet(viewsets.ModelViewSet):
 
 
 class RGPDViewSet(viewsets.ViewSet):
-    permission_classes = [IsCurrentUser]
+    permission_classes = [IsCurrentUser()]
 
     def retrieve(self, request, pk=None):
         queryset = CustomUser.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status.HTTP_200_OK)
 
     def update(self, request):
-        pass
+        user = request.data
+        serializer = UserSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.update()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request):
-        request.user.delete()
+        user = request.data
+        serializer = UserSerializer(data=user)
+        serializer.delete()
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
