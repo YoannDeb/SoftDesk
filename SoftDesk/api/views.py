@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment, CustomUser
-from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer
+from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer
 from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor, IsCommentAuthor
 
 
@@ -57,6 +57,19 @@ class IssueViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Issue.objects.filter(project_id=self.kwargs['project_pk'])
 
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = CreateIssueSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(project_id=Project.objects.get(pk=int(self.kwargs['project_pk'])), author_user_id=request.user,)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except Project.DoesNotExist:
+            return Response({"Message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -72,6 +85,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = CreateCommentSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(issue_id=Issue.objects.get(pk=int(self.kwargs['issue_pk'])), author_user_id=request.user,)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except Project.DoesNotExist:
+            return Response({"Message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
@@ -111,12 +137,15 @@ class RGPDViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data, status.HTTP_200_OK)
 
-    def update(self, request):
+    def update(self, request, pk=None):
         user = request.data
         serializer = UserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.update()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk=None):
+        pass
 
     def destroy(self, request):
         user = request.data
