@@ -11,7 +11,7 @@ from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, I
 
 
 class SignUpAPIView(views.APIView):
-    permission_classes = [permissions.AllowAny()]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         user = request.data
@@ -26,16 +26,17 @@ class SignUpAPIView(views.APIView):
 #     permission_classes = [permissions.AllowAny]
 #     serializer_class = UserSerializer
 
-@decorators.permission_classes([permissions.IsAuthenticated()])
+# @decorators.permission_classes([permissions.IsAuthenticated()])
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
     def get_permissions(self):
-        permission_classes = []
+        permission_classes = [permissions.IsAuthenticated()]
+        print(self.action)
         if self.action == 'retrieve':
-            permission_classes = [IsProjectContributor()]
-        elif self.action == 'delete' or self.action == 'update':
-            permission_classes = [IsProjectAuthor()]
+            permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
+        elif self.action == 'destroy' or self.action == 'update':
+            permission_classes = [permissions.IsAuthenticated(), IsProjectAuthor()]
         return permission_classes
 
     def get_queryset(self):
@@ -49,7 +50,7 @@ class IssueViewSet(viewsets.ModelViewSet):
         permission_classes = [permissions.IsAuthenticated()]
         if self.action == 'list' or self.action == 'retrieve' or self.action == 'create':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
-        elif self.action == 'delete' or self.action == 'update':
+        elif self.action == 'destroy' or self.action == 'update':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor(), IsIssueAuthor()]
         return permission_classes
 
@@ -65,7 +66,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         permission_classes = [permissions.IsAuthenticated()]
         if self.action == 'list' or self.action == 'retrieve' or self.action == 'create':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
-        elif self.action == 'delete' or self.action == 'update':
+        elif self.action == 'destroy' or self.action == 'update':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor(), IsCommentAuthor()]
         return permission_classes
 
@@ -80,7 +81,7 @@ class ContributorViewSet(viewsets.ModelViewSet):
         permission_classes = [permissions.IsAuthenticated()]
         if self.action == 'list' or self.action == 'retrieve':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
-        elif self.action == 'create' or self.action == 'delete' or self.action == 'update':
+        elif self.action == 'create' or self.action == 'destroy' or self.action == 'update':
             permission_classes = [permissions.IsAuthenticated(), IsProjectAuthor()]
         return permission_classes
 
@@ -102,7 +103,7 @@ class ContributorViewSet(viewsets.ModelViewSet):
 
 
 class RGPDViewSet(viewsets.ViewSet):
-    permission_classes = [IsCurrentUser()]
+    permission_classes = [IsCurrentUser]
 
     def retrieve(self, request, pk=None):
         queryset = CustomUser.objects.all()
