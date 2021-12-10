@@ -18,10 +18,11 @@ from django.urls import path, include
 from rest_framework_nested import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from api.views import ProjectViewSet, IssueViewSet, ContributorViewSet, CommentViewSet, SignUpAPIView
+from api.views import ProjectViewSet, IssueViewSet, ContributorViewSet, CommentViewSet, SignUpAPIView, RGPDViewSet
 
 router = routers.SimpleRouter()
 router.register('projects', ProjectViewSet, basename='projects')
+router.register('rgpd', RGPDViewSet, basename='rgpd')
 
 project_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
 project_router.register('issues', IssueViewSet, basename='issues')
@@ -35,6 +36,7 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('signup/', SignUpAPIView.as_view()),
+    path('rgpd/', RGPDViewSet),
     path('', include(router.urls)),
     path('', include(project_router.urls)),
     path('', include(issue_router.urls)),
