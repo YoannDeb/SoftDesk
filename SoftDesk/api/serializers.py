@@ -41,6 +41,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'description', 'author_user_id', 'issue_id', 'created_time']
 
 
+class CreateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'description']
+
+
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
@@ -49,8 +55,14 @@ class IssueSerializer(serializers.ModelSerializer):
             'status', 'author_user_id', 'assignee_user_id', 'created_time'
         ]
 
-        def create(self, validated_data):
-            pass
+
+class CreateIssueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Issue
+        fields = [
+            'id', 'title', 'description', 'tag', 'priority',
+            'status', 'assignee_user_id'
+        ]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
