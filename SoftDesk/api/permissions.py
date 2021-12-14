@@ -9,10 +9,8 @@ class IsProjectContributor(BasePermission):
             project_pk = int(request.resolver_match.kwargs['project_pk'])
         except:
             project_pk = int(request.resolver_match.kwargs['pk'])
-
-        # project = request.user.project_set.get(pk=project_pk)
-        projects_pks_of_which_user_is_contributor = list(request.user.project_set.all().values_list('pk', flat=True))
-        return project_pk in projects_pks_of_which_user_is_contributor
+        projects_of_which_user_is_contributor = list(request.user.project_set.all().values_list('pk', flat=True))
+        return project_pk in projects_of_which_user_is_contributor
     #todo: returning not allowed when project does not exist
 
 
@@ -39,11 +37,21 @@ class IsIssueAuthor(BasePermission):
     message = "Access forbidden: You are not the author of the issue"
 
     def has_permission(self, request, view):
-        return request.user.pk in list(request.user.issues.all().values_list('pk', flat=True))
+        try:
+            issue = int(request.resolver_match.kwargs['pk'])
+            issues_of_which_user_is_the_author = list(request.user.created_issues.all().values_list('pk', flat=True))
+            return issue in issues_of_which_user_is_the_author
+        except AttributeError:
+            return False
 
 
 class IsCommentAuthor(BasePermission):
     message = "Access forbidden: You are not the author of the comment"
 
     def has_permission(self, request, view):
-        return request.user.pk in list(request.user.comments.all().values_list('pk', flat=True))
+        try:
+            comment = int(request.resolver_match.kwargs['pk'])
+            comments_of_which_user_is_the_author = list(request.user.comments.all().values_list('pk', flat=True))
+            return comment in comments_of_which_user_is_the_author
+        except AttributeError:
+            return False
