@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment, CustomUser
-from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer
+from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer, UpdateUserSerializer
 from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor, IsCommentAuthor
 
 
@@ -155,17 +155,23 @@ class RGPDViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data, status.HTTP_200_OK)
 
-    def update(self, request):
+    def update(self, request, pk=None):
+        # queryset = CustomUser.objects.all()
+        # user = get_object_or_404(queryset, pk=pk)
+        # user = request.data
+        # print(user)
+        # serializer = UserSerializer(data=user)
+        # print(serializer)
         user = request.data
-        serializer = UserSerializer(data=user)
+        serializer = UpdateUserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
-        serializer.update()
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request, pk=None):
+    def partial_update(self, request, pk=None):
         pass
 
-    def destroy(self, request):
+    def destroy(self, request, pk=None):
         user = request.data
         serializer = UserSerializer(data=user)
         serializer.delete()
