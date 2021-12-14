@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length=255, unique=True, verbose_name='email address', error_messages={'unique':'A user with this email elready exists.'})
+    email = models.EmailField(max_length=255, unique=True, verbose_name='email address', error_messages={'unique':'A user with this email already exists.'})
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
@@ -87,7 +87,7 @@ class Project(models.Model):
         (ANDROID, 'Android'),
     ]
 
-    title = models.CharField(max_length=50, blank=False)
+    title = models.CharField(max_length=50, blank=False, unique=True)
     description = models.CharField(max_length=300)
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
@@ -132,7 +132,7 @@ class Issue(models.Model):
     ]
 
     title = models.CharField(max_length=50)
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=300, blank=True)
     tag = models.CharField(max_length=50, choices=TAG_CHOICES)
     priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES)
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
@@ -144,9 +144,15 @@ class Issue(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        unique_together = ('title', 'project_id')
+
 
 class Comment(models.Model):
     description = models.CharField(max_length=300)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue_id = models.ForeignKey('api.Issue', on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('description', 'issue_id')
