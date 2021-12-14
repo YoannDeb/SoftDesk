@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length=255, unique=True, verbose_name='email address')
+    email = models.EmailField(max_length=255, unique=True, verbose_name='email address', error_messages={'unique':'A user with this email elready exists.'})
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
@@ -87,7 +87,7 @@ class Project(models.Model):
         (ANDROID, 'Android'),
     ]
 
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=50, blank=False)
     description = models.CharField(max_length=300)
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
