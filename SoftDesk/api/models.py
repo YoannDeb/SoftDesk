@@ -138,7 +138,7 @@ class Issue(models.Model):
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues')
-    assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assigned_issues')
+    assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, default=author_user_id, on_delete=models.SET(author_user_id), related_name='assigned_issues')
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
