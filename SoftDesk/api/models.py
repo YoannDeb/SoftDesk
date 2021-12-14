@@ -37,19 +37,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.email}"
 
-    def has_perm(self, perm, obj=None):
-        """Does the user have a specific permission?"""
-        # Simplest possible answer: Yes, always
-        return True
-
-    def has_module_perms(self, app_label):
-        """Does the user have permissions to view the app `app_label`?"""
-        # Simplest possible answer: Yes, always
-        return True
-
-    # def save(self, *args, **kwargs):
-    #     super(CustomUser, self).save(*args, **kwargs)
-    #     return self
+    # def has_perm(self, perm, obj=None):
+    #     """Does the user have a specific permission?"""
+    #     return True
+    #
+    # def has_module_perms(self, app_label):
+    #     """Does the user have permissions to view the app `app_label`?"""
+    #     return True
 
     @property
     def is_staff(self):
@@ -75,6 +69,9 @@ class Contributor(models.Model):
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='users')
     permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)
     role = models.CharField(max_length=300)
+
+    class Meta:
+        unique_together = ('user_id', 'project_id')
 
 
 class Project(models.Model):
