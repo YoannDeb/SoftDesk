@@ -8,7 +8,7 @@ from .models import Project, Issue, Comment, Contributor, CustomUser
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['email', 'first_name', 'last_name', 'email', 'password']
+        fields = ['email', 'first_name', 'last_name', 'password']
         # extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value: str) -> str:
@@ -19,6 +19,15 @@ class UserSerializer(serializers.ModelSerializer):
         :return: a hashed version of the password
         """
         return make_password(value)
+
+    def validate_email(self, value: str) -> str:
+        return value.lower()
+
+    def validate_first_name(self, value: str) -> str:
+        return value.capitalize()
+
+    def validate_last_name(self, value: str) -> str:
+        return value.capitalize()
 
 
 class ContributorSerializer(serializers.ModelSerializer):
