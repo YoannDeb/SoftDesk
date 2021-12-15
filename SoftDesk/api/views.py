@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment, CustomUser
-from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer, UpdateUserSerializer
+from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer
 from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, IsIssueAuthor, IsCommentAuthor
 
 
@@ -156,20 +156,21 @@ class RGPDViewSet(viewsets.ViewSet):
         return Response(serializer.data, status.HTTP_200_OK)
 
     def update(self, request, pk=None):
-        # queryset = CustomUser.objects.all()
-        # user = get_object_or_404(queryset, pk=pk)
-        # user = request.data
-        # print(user)
-        # serializer = UserSerializer(data=user)
-        # print(serializer)
-        user = request.data
-        serializer = UpdateUserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            queryset = CustomUser.objects.all()
+            user = get_object_or_404(queryset, pk=pk)
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except IntegrityError as e:
+            if 'UNIQUE constraint' in e.args[0]:
+                return Response({"Message": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
-    def partial_update(self, request, pk=None):
-        pass
+    # def partial_update(self, request, *args, **kwargs):
+    #     kwargs['partial'] = True
+    #     return self.update(request, *args, **kwargs)
 
     def destroy(self, request, pk=None):
         user = request.data
