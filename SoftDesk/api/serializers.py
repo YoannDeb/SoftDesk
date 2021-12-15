@@ -33,28 +33,6 @@ class UserSerializer(serializers.ModelSerializer):
         return value.capitalize()
 
 
-# class UpdateUserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CustomUser
-#         fields = ['first_name', 'last_name', 'password']
-#         # extra_kwargs = {'password': {'write_only': True}}
-#
-#     def validate_password(self, value: str) -> str:
-#         """
-#         Hash value passed by user.
-#
-#         :param value: password of a user
-#         :return: a hashed version of the password
-#         """
-#         return make_password(value)
-#
-#     def validate_first_name(self, value: str) -> str:
-#         return value.capitalize()
-#
-#     def validate_last_name(self, value: str) -> str:
-#         return value.capitalize()
-
-
 class ContributorSerializer(serializers.ModelSerializer):
     project_title = serializers.CharField(read_only=True, source='project.title')
 
@@ -100,7 +78,6 @@ class CreateIssueSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Project
         fields = ['id', 'title', 'description', 'type', 'author_user_id', 'contributors']
