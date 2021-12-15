@@ -68,7 +68,7 @@ class Contributor(models.Model):
     user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='users')
     permission = models.CharField(max_length=2, choices=PERMISSION_CHOICES)
-    role = models.CharField(max_length=300)
+    role = models.CharField(max_length=50)
 
     class Meta:
         unique_together = ('user_id', 'project_id')
@@ -87,9 +87,12 @@ class Project(models.Model):
         (ANDROID, 'Android'),
     ]
 
-    title = models.CharField(max_length=50, blank=False, unique=True)
+    title = models.CharField(max_length=120, blank=False, unique=True)
     description = models.CharField(max_length=300)
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, error_messages={
+        'invalid_choice': f'Type must between those choices: {BACK_END} for Back-end; {FRONT_END} for front-end; '
+                          f'{IOS} for IOS; {ANDROID} for Android'
+    })
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
 
     def __str__(self):
@@ -131,12 +134,12 @@ class Issue(models.Model):
         (TERMINE, 'Terminé'),
     ]
 
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=120)
     description = models.CharField(max_length=300, blank=True)
-    tag = models.CharField(max_length=50, choices=TAG_CHOICES)
-    priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES)
+    tag = models.CharField(max_length=2, choices=TAG_CHOICES)
+    priority = models.CharField(max_length=2, choices=PRIORITY_CHOICES)
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=2, choices=STATUS_CHOICES)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues')
     assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, default=author_user_id, on_delete=models.SET(author_user_id), related_name='assigned_issues')
     created_time = models.DateTimeField(auto_now_add=True)
