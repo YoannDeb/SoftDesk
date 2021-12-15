@@ -27,18 +27,12 @@ class SignUpAPIView(views.APIView):
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class SignupApiView(generics.CreateAPIView):
-#     model = User
-#     permission_classes = [permissions.AllowAny]
-#     serializer_class = UserSerializer
-
 # @decorators.permission_classes([permissions.IsAuthenticated()])
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
     def get_permissions(self):
         permission_classes = [permissions.IsAuthenticated()]
-        print(self.action)
         if self.action == 'retrieve':
             permission_classes = [permissions.IsAuthenticated(), IsProjectContributor()]
         elif self.action == 'destroy' or self.action == 'update':
@@ -47,6 +41,19 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Project.objects.filter(contributors=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class IssueViewSet(viewsets.ModelViewSet):
@@ -80,6 +87,19 @@ class IssueViewSet(viewsets.ModelViewSet):
                 return Response({"Message": "An issue with this title already exists for this project."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -110,9 +130,21 @@ class CommentViewSet(viewsets.ModelViewSet):
             return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
-                return Response({"Message": "An comment with this description already exists for this issue."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"Message": "A comment with this description already exists for this issue."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 class ContributorViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorSerializer
