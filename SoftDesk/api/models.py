@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-# from django.utils import timezone
 from django.db import models, transaction
 from django.conf import settings
 
@@ -37,18 +36,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.email}"
 
-    # def has_perm(self, perm, obj=None):
-    #     """Does the user have a specific permission?"""
-    #     return True
-    #
-    # def has_module_perms(self, app_label):
-    #     """Does the user have permissions to view the app `app_label`?"""
-    #     return True
-
     @property
     def is_staff(self):
         """Is the user a member of staff?"""
-        # Simplest possible answer: All superusers are staff
         return self.is_superuser
 
     class Meta:
