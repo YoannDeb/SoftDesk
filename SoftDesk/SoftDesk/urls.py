@@ -36,7 +36,11 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('signup/', SignUpAPIView.as_view()),
-    path('rgpd/', RGPDViewSet),
+    path('rgpd/', RGPDViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy'
+    })),
     path('', include(router.urls)),
     path('', include(project_router.urls)),
     path('', include(issue_router.urls))
