@@ -42,7 +42,7 @@ cd softDesk
 python manage.py runserver
 ```
 
-### Initializing database and runn the program:
+### Initializing database and run the program:
 
 with virtual environnement activated (see previous chapter):
 
