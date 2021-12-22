@@ -214,8 +214,29 @@ class RGPDViewSet(viewsets.ViewSet):
     #     kwargs['partial'] = True
     #     return self.update(request, *args, **kwargs)
 
+    # def destroy(self, request, pk=None):
+    #     data = request.data
+    #     serializer = DeleteUserSerializer(data=data)
+    #     serializer.is_valid(raise_exception=True)
+    #     print(serializer.data)
+    #     print(request.data)
+    #     print(self.kwargs['pk'])
+    #     print(type(self.kwargs['pk']))
+    #     user = CustomUser.objects.get(pk=int(self.kwargs['pk']))
+    #     print(user)
+    #     user.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # def destroy(self, request, pk=None):
+    #     queryset = CustomUser.objects.all()
+    #     user = get_object_or_404(queryset, pk=pk)
+    #     serializer = DeleteUserSerializer(user, data=request.data, partial=True)
+    #     serializer.is_valid(raise_exception=True)
+    #     user.delete()
+    #     return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
     def destroy(self, request, pk=None):
-        user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.delete()
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        queryset = CustomUser.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
