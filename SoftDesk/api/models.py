@@ -80,7 +80,7 @@ class Project(models.Model):
     title = models.CharField(max_length=120, blank=False, unique=True)
     description = models.CharField(max_length=300)
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, error_messages={
-        'invalid_choice': f'Type must between those choices: {BACK_END} for Back-end; {FRONT_END} for front-end; '
+        'invalid_choice': f'Type must be between those choices: {BACK_END} for Back-end; {FRONT_END} for front-end; '
                           f'{IOS} for IOS; {ANDROID} for Android'
     })
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
