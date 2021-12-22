@@ -1,10 +1,8 @@
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
-from rest_framework import viewsets, views, permissions, status, decorators
+from rest_framework import viewsets, views, permissions, status
 
 from rest_framework.response import Response
-from rest_framework.decorators import action
 
 from .models import Project, Contributor, Issue, Comment, CustomUser
 from .serializers import ProjectSerializer, CommentSerializer, IssueSerializer, UserSerializer, ContributorSerializer, CreateContributorSerializer, CreateIssueSerializer, CreateCommentSerializer
@@ -27,7 +25,6 @@ class SignUpAPIView(views.APIView):
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @decorators.permission_classes([permissions.IsAuthenticated()])
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
@@ -222,4 +219,3 @@ class RGPDViewSet(viewsets.ViewSet):
         serializer = UserSerializer(data=user)
         serializer.delete()
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
-
