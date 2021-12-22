@@ -6,7 +6,8 @@ Part of [Open Classrooms](https://openclassrooms.com) "DA Python" formation, 10t
 
 # SoftDesk API
 
-SoftDesk API serves endpoints to consult and modify SoftDesk data designated for SoftDesk Front-end apps (Website, Android and IOS mobile apps)
+SoftDesk API serves endpoints to consult and modify SoftDesk data designated for SoftDesk Front-end apps (Website, Android and IOS mobile apps).
+SoftDesk is an app allowing users to submit projects and follow technical issues about them.
 
 ## Postman Documentation:
 
