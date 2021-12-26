@@ -20,6 +20,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from api.views import ProjectViewSet, IssueViewSet, ContributorViewSet, CommentViewSet, SignUpAPIView, RGPDViewSet
 
+
+"""
+Use of rest_framework_nested for nested routers.
+"""
 router = routers.SimpleRouter()
 router.register('projects', ProjectViewSet, basename='projects')
 router.register('rgpd', RGPDViewSet, basename='rgpd')
