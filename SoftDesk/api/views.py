@@ -27,9 +27,9 @@ class SignUpAPIView(views.APIView):
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
-                    {"Message": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST
+                    "A user with this email already exists.", status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -95,16 +95,16 @@ class IssueViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Project.DoesNotExist:
-            return Response({"Message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Project does not exist.", status=status.HTTP_404_NOT_FOUND)
         except Project.MultipleObjectsReturned:
-            return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
-                    {"Message": "An issue with this title already exists for this project."},
+                    "An issue with this title already exists for this project.",
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         """
@@ -125,11 +125,15 @@ class IssueViewSet(viewsets.ModelViewSet):
                 instance._prefetched_objects_cache = {}
 
             return Response(serializer.data)
+        except Project.DoesNotExist:
+            return Response("Project does not exist.", status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
-                return Response({"Message": "An issue with this title already exists for this project."},
+                return Response("An issue with this title already exists for this project.",
                                 status=status.HTTP_400_BAD_REQUEST)
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -163,16 +167,20 @@ class CommentViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Project.DoesNotExist:
-            return Response({"Message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Project does not exist.", status=status.HTTP_404_NOT_FOUND)
         except Project.MultipleObjectsReturned:
-            return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
+        except Issue.DoesNotExist:
+            return Response("Issue does not exist.", status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
-                    {"Message": "A comment with this description already exists for this issue."},
+                    "A comment with this description already exists for this issue.",
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         """
@@ -193,11 +201,21 @@ class CommentViewSet(viewsets.ModelViewSet):
                 instance._prefetched_objects_cache = {}
 
             return Response(serializer.data)
+        except Project.DoesNotExist:
+            return Response("Project does not exist.", status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
+        except Issue.DoesNotExist:
+            return Response("Issue does not exist.", status=status.HTTP_404_NOT_FOUND)
+        except Project.MultipleObjectsReturned:
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
-                return Response({"Message": "A comment with this description already exists for this issue."},
-                                status=status.HTTP_400_BAD_REQUEST)
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    "A comment with this description already exists for this issue.",
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
@@ -231,16 +249,16 @@ class ContributorViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Project.DoesNotExist:
-            return Response({"Message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Project does not exist.", status=status.HTTP_404_NOT_FOUND)
         except Project.MultipleObjectsReturned:
-            return Response({"Message": "Multiple objects returned"}, status=status.HTTP_404_NOT_FOUND)
+            return Response("Multiple objects returned.", status=status.HTTP_404_NOT_FOUND)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
-                    {"Message": "This user is already contributor or author of the project."},
+                    "This user is already contributor or author of the project.",
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
 
 class RGPDViewSet(viewsets.ViewSet):
@@ -272,9 +290,9 @@ class RGPDViewSet(viewsets.ViewSet):
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
-                    {"Message": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST
+                    "A user with this email already exists.", status=status.HTTP_400_BAD_REQUEST
                 )
-            return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
         queryset = CustomUser.objects.all()
