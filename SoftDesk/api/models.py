@@ -30,7 +30,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     Custom user, notably for email as username.
     Declared in settings.py
     """
-    email = models.EmailField(max_length=255, unique=True, verbose_name='email address', error_messages={'unique':'A user with this email already exists.'})
+    email = models.EmailField(
+        max_length=255, unique=True, verbose_name='email address',
+        error_messages={'unique':'A user with this email already exists.'})
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
@@ -90,10 +92,14 @@ class Project(models.Model):
 
     title = models.CharField(max_length=120, blank=False, unique=True)
     description = models.CharField(max_length=300)
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES, error_messages={
-        'invalid_choice': f'Type must be between those choices: {BACK_END} for Back-end; {FRONT_END} for front-end; '
-                          f'{IOS} for IOS; {ANDROID} for Android'
-    })
+    type = models.CharField(
+        max_length=2, choices=TYPE_CHOICES,
+        error_messages={
+            'invalid_choice': f'Type must be between those choices: '
+                              f'{BACK_END} for Back-end; {FRONT_END} for front-end; '
+                              f'{IOS} for IOS; {ANDROID} for Android'
+        }
+    )
     contributors = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Contributor')
 
     def __str__(self):
@@ -144,8 +150,13 @@ class Issue(models.Model):
     priority = models.CharField(max_length=2, choices=PRIORITY_CHOICES)
     project_id = models.ForeignKey('api.Project', on_delete=models.CASCADE, related_name='issues')
     status = models.CharField(max_length=2, choices=STATUS_CHOICES)
-    author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues')
-    assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, default=author_user_id, on_delete=models.SET_NULL, null=True, related_name='assigned_issues')
+    author_user_id = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_issues'
+    )
+    assignee_user_id = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, default=author_user_id, on_delete=models.SET_NULL,
+        null=True, related_name='assigned_issues'
+    )
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
