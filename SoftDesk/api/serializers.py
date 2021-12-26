@@ -21,7 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value: str) -> str:
         """
-        Overload of validate_email method, converting email in lowercase.
+        Overload of validate_email method, converting email and
+        checking existence of the email in the database EXCEPT for current user.
+        Necessary cause by default for an update, if the mail was the same, the user wasn't updated.
         """
         email = value.lower()
         if self.instance and CustomUser.objects.exclude(pk=self.instance.pk).filter(email=value):
