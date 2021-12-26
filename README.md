@@ -54,6 +54,6 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-SoftDesk will be accessible at http://127.0.0.1:8000
+SoftDesk API will be accessible at http://127.0.0.1:8000
 
 See [documentation](https://documenter.getpostman.com/view/17349279/UVR8o7FG) to see details about endpoints.
