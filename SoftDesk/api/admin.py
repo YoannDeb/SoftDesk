@@ -5,6 +5,11 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 from .models import CustomUser, Project, Comment, Issue, Contributor
 
+"""
+Some modifications to support custom user in admin.
+Actually the admin interface is deactivated by the way.
+"""
+
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
