@@ -9,27 +9,35 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'first_name', 'last_name', 'password']
-        # extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value: str) -> str:
         """
         Hash value passed by user.
-
+        Apparently necessary with custom user.
         :param value: password of a user
         :return: a hashed version of the password
         """
         return make_password(value)
 
     def validate_email(self, value: str) -> str:
+        """
+        Overload of validate_email method, converting email in lowercase.
+        """
         email = value.lower()
         if self.instance and CustomUser.objects.exclude(pk=self.instance.pk).filter(email=value):
             raise serializers.ValidationError('A user with this email already exists.')
         return email
 
     def validate_first_name(self, value: str) -> str:
+        """
+        Overload of validate_first_name method, capitalizing first name.
+        """
         return value.capitalize()
 
     def validate_last_name(self, value: str) -> str:
+        """
+        Overload of validate_last_name method, capitalizing last name.
+        """
         return value.capitalize()
 
 
@@ -83,6 +91,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'type', 'author_user_id', 'contributors']
 
     def create(self, validated_data):
+        """
+        Overloaded Create method to automatically create contributor with user creating the project as author.
+        """
         with transaction.atomic():
             project_instance = super().create(validated_data)
             contributor = Contributor.objects.create(
