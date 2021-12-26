@@ -10,6 +10,9 @@ from .permissions import IsProjectContributor, IsProjectAuthor, IsCurrentUser, I
 
 
 class SignUpAPIView(views.APIView):
+    """
+    Using APIView inheritance as we only need post in this endpoint.
+    """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -42,6 +45,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Project.objects.filter(contributors=self.request.user)
 
     def update(self, request, *args, **kwargs):
+        """
+        Overload of update method authorizing partial update with put HTTP method.
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -70,6 +76,13 @@ class IssueViewSet(viewsets.ModelViewSet):
         return Issue.objects.filter(project_id=self.kwargs['project_pk'])
 
     def create(self, request, *args, **kwargs):
+        """
+        Overload of create method.
+        - Automatically add the project pk from url as the project_id of the issue,
+        and the current user's pk as author_user_id.
+        - Error catching if an issue with the same title already exists for the current project,
+        delivering proper API response.
+        """
         try:
             serializer = CreateIssueSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -92,6 +105,12 @@ class IssueViewSet(viewsets.ModelViewSet):
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
+        """
+        Overload of update method.
+        - Authorize partial update with put HTTP method.
+        - Error catching if an issue with the same title already exists for the current project,
+        delivering proper API response.
+        """
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -127,6 +146,13 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(issue_id=self.kwargs['issue_pk'])
 
     def create(self, request, *args, **kwargs):
+        """
+        Overload of create method.
+        - Automatically add the issue pk from url as the issue_id of the comment,
+        and the current user's pk as author_user_id.
+        - Error catching if a comment with the same title already exists for the current issue,
+        delivering proper API response.
+        """
         try:
             serializer = CreateCommentSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -147,6 +173,12 @@ class CommentViewSet(viewsets.ModelViewSet):
             return Response({"Message": "There was an integrity error."}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
+        """
+        Overload of update method.
+        - Authorize partial update with put HTTP method.
+        - Error catching if a comment with the same title already exists for the current issue,
+        delivering proper API response.
+        """
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -181,6 +213,14 @@ class ContributorViewSet(viewsets.ModelViewSet):
         return Contributor.objects.filter(project_id=int(self.kwargs['project_pk']))
 
     def create(self, request, *args, **kwargs):
+        """
+        Overload of create method.
+        - Automatically add the project pk from url as the project_id of the comment,
+        and the permission to 'CO' (contributor only as the author is the only user allowed to add other contributors,
+        and there can be only one author to a project).
+        - Error catching if a comment with the same title already exists for the current issue,
+        delivering proper API response.
+        """
         try:
             serializer = CreateContributorSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -202,6 +242,10 @@ class ContributorViewSet(viewsets.ModelViewSet):
 
 
 class RGPDViewSet(viewsets.ViewSet):
+    """
+    RGPD Viewset, allowing consultation and modification of the user according to RGPD laws.
+    Viewset is used as we don't need all endpoints given by ModelViewSet.
+    """
     permission_classes = [IsCurrentUser]
 
     def retrieve(self, request, pk=None):
@@ -211,6 +255,11 @@ class RGPDViewSet(viewsets.ViewSet):
         return Response(serializer.data, status.HTTP_200_OK)
 
     def update(self, request, pk=None):
+        """
+        Error catching if an other user with the same email already exists in database,
+        delivering proper API response.
+        Partial update is allowed.
+        """
         try:
             queryset = CustomUser.objects.all()
             user = get_object_or_404(queryset, pk=pk)
