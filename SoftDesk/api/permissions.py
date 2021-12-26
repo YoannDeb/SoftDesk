@@ -11,7 +11,6 @@ class IsProjectContributor(BasePermission):
             project_pk = int(request.resolver_match.kwargs['pk'])
         projects_of_which_user_is_contributor = list(request.user.project_set.all().values_list('pk', flat=True))
         return project_pk in projects_of_which_user_is_contributor
-    #todo: returning not allowed when project does not exist
 
 
 class IsProjectAuthor(BasePermission):
