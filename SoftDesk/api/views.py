@@ -21,7 +21,9 @@ class SignUpAPIView(views.APIView):
             serializer = UserSerializer(data=user)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = serializer.data.copy()
+            data.pop('password')
+            return Response(data, status=status.HTTP_201_CREATED)
         except IntegrityError as e:
             if 'UNIQUE constraint' in e.args[0]:
                 return Response(
