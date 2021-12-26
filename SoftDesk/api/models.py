@@ -4,6 +4,9 @@ from django.conf import settings
 
 
 class CustomUserManager(BaseUserManager):
+    """
+    Custom user manager is necessary for custom user with custom fields (notably email as username) to work.
+    """
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError('User must have an email address')
@@ -23,6 +26,10 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    """
+    Custom user, notably for email as username.
+    Declared in settings.py
+    """
     email = models.EmailField(max_length=255, unique=True, verbose_name='email address', error_messages={'unique':'A user with this email already exists.'})
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
@@ -47,6 +54,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Contributor(models.Model):
+    """
+    Contributor model. Contributor is a through table between Projects and Users.
+    It stores permissions and roles in addition to foreign keys.
+    """
     AUTHOR = 'AU'
     CONTRIBUTOR = 'CO'
 
@@ -94,6 +105,9 @@ class Project(models.Model):
 
 
 class Issue(models.Model):
+    """
+    Issues are bound to a project.
+    """
     BUG = 'BU'
     AMELIORATION = 'AM'
     TACHE = 'TA'
@@ -142,6 +156,9 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
+    """
+    Comments are bound to an issue.
+    """
     description = models.CharField(max_length=300)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue_id = models.ForeignKey('api.Issue', on_delete=models.CASCADE, related_name='comments')
