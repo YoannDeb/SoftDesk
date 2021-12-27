@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Project, Contributor, Issue, Comment, CustomUser
+from .models import Project, Issue, Comment, CustomUser
 
 
 class IsProjectContributor(BasePermission):
@@ -43,11 +43,11 @@ class IsProjectAuthor(BasePermission):
 
         # Adapted message if project does not exist at all:
         try:
-            Project.objects.get(pk=project_pk)
+            project = Project.objects.get(pk=project_pk)
         except ObjectDoesNotExist:
             self.message = "Project does not exist"
+            return False
 
-        project = request.user.project_set.get(pk=project_pk)
         return project.author_user_id == request.user.pk
 
 
