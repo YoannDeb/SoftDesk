@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from rest_framework import viewsets, views, permissions, status
 from rest_framework.response import Response
 
@@ -276,7 +276,7 @@ class RGPDViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         """
-        Error catching if an other user with the same email already exists in database,
+        Error catching if another user with the same email already exists in database,
         delivering proper API response.
         Partial update is allowed.
         """
@@ -295,7 +295,18 @@ class RGPDViewSet(viewsets.ViewSet):
             return Response("There was an integrity error.", status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
+        """
+        - Deletes user and all projects of which user is the author
+        (got to be handled manually cause there is no direct foreign_keys between users and projects).
+        - Contributors, issues and comments objects of which user is the author are automatically deleted
+        because on_delete=cascade in respective models' foreign keys.
+        """
         queryset = CustomUser.objects.all()
         user = get_object_or_404(queryset, pk=pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        projects_of_which_user_is_contributor = user.project_set.all()
+        with transaction.atomic():
+            for project in projects_of_which_user_is_contributor:
+                if project.author_user_id == int(pk):
+                    project.delete()
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
